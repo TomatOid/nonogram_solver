@@ -2,8 +2,8 @@ import numpy as np
 import copy
 
 # I wrote most of this code almost a year ago,
-# Now I completely hate it, all the pointless classes
-# and inconsistant indentation, and bad names.
+# Now I completely hate it, all the pointless classes,
+# inconsistant indentation, and bad names.
 #
 # TODO (Maybe): Refactor
 
@@ -182,17 +182,7 @@ def clueListFromStr(string, size):
   for i in range(size[0], size[0] + size[1]):
     t = clueStrings[i].split(',')
     res.append(Clue(t, size[0]))
-  print(len(res))
   return res
-
-'''
-clues = clueListFromStr("3,9;1,3,5;1,2,3;2,3,3;2,6,6;1,15;12,6;4,5,5;3,3,4;2,3,1,4;3,1,7;8;3,1,8;5,3,6;1,3,2,3;3,1,1,1,1;1,1,4,1;3,3,1;1,1,1;5;5,4;1,1,2,1,3;6,3;3,3;2,4;2,3;1,2,1;1,4,1;7,2;12;2,1,10;1,3,4,3;4,2,2,2;2,5,1,1;10,3,1;1,6,4,2;2,12,2;1,2,11;1,2,11;3,1,8", 20)
-print(len(clues))
-board = gameBoard((20, 20), clues)
-board.attemptSolve()
-board.printBoard()
-'''
-
 
 size = (0, 0)
 while size == (0, 0):
@@ -208,11 +198,11 @@ while size == (0, 0):
           size = (int(split_sizes[0]), int(split_sizes[1]))
         except:
           print("Not a valid size.")
-          size = 0
+          size = (0, 0)
           continue
         if len(split_sizes) != 2:
           print("Only 2d puzzles are supported")
-          size = 0
+          size = (0, 0)
           continue
         else:
           break
@@ -232,7 +222,7 @@ while i < (size[0] + size[1]):
   clue_str += clue_input + ';'
   i += 1
 
-print(clue_str)
+print()
 clues = clueListFromStr(clue_str, size)
 board = gameBoard(size, clues, 1)
 if not board.attemptSolve():
@@ -240,25 +230,3 @@ if not board.attemptSolve():
   exit(1)
 board.printBoard()
 print()
-
-
-'''
-class Row:
-  def __init__(self, _clue, _state, _location):
-    self.clue = _clue
-    self.size = _clue.size
-    self.possible = []
-    self.state = _state
-    self.loc = _location
-'''
-
-'''
-c1 = Clue(np.array([2, 1, 1, 1, 2, 2]), 20)
-size = 15
-clues = clueListFromStr("4;3;1;2,2;2,1", 20)
-print(clues)
-
-c1.getPossible()
-print(overlap(c1, np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])))
-print(c1.possibilities) 
-'''
