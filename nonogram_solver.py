@@ -186,7 +186,7 @@ def clueListFromStr(string, size):
 
 size = (0, 0)
 while size == (0, 0):
-  size_str = input("What size puzzle are you solving? ").lower().replace(' ', '')
+  size_str = input("What size puzzle are you solving? (H x W): ").lower().replace(' ', '')
   try:
     size = (int(size_str), int(size_str))
   except:
