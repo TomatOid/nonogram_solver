@@ -1,11 +1,17 @@
 import numpy as np
 import copy
+import time
+import os
+from subprocess import call
 
 # I wrote most of this code almost a year ago,
 # Now I completely hate it, all the pointless classes,
 # inconsistant indentation, and bad names.
 #
 # TODO (Maybe): Refactor
+
+do_animation = False
+animation_pause_secs = 0.05
 
 def split(n, size):
   res = []
@@ -72,9 +78,10 @@ def overlap(clue, state: np.array):
   clue.possibilities = clue.possibilities[remove]
   return res
  
-class gameBoard:
+class GameBoard:
   def __init__(self, size, clues, check_unique):
       self.boardState = np.zeros(size, dtype = int)
+      self.lastBoardState = np.ones(size, dtype = int)
       self.clues = clues
       self.check_unique = check_unique
 
@@ -102,9 +109,10 @@ class gameBoard:
       p_sum = sum(np.array(self.clues[i + self.boardState.shape[0]].possibilities) == 2) / len(self.clues[i + self.boardState.shape[0]].possibilities)
       cols_prob_mat[:, i] = p_sum
     product = rows_prob_mat * cols_prob_mat
-    return (product - 0.5) * np.logical_and(product != 0, product != 1)
-    
+    return (product - 0.5)# * np.logical_and(product != 0, product != 1)
+
   def attemptSolve(self):
+    self.animateFrame()
     for c in self.clues:
       c.getPossible()
     rowsOfInterest = np.ones((self.boardState.shape[0] + self.boardState.shape[1]))
@@ -127,10 +135,11 @@ class gameBoard:
               if diff[j] != 0:
                 rowsOfInterest[j] = 1
           self.setRowFromInt(i, r1)
+          self.animateFrame()
 
     if 0 in self.boardState:
       prob = self.getProbabitities()
-      max_index = np.unravel_index(np.argmax(np.abs(prob)), self.boardState.shape)
+      max_index = np.unravel_index(np.argmin(np.abs(prob)), self.boardState.shape)
       best_guess = (prob[max_index] > 0) + 1
       board_copy_a = copy.deepcopy(self)
       board_copy_b = copy.deepcopy(self)
@@ -143,13 +152,14 @@ class gameBoard:
         if not self.check_unique:
             return True
         first_guess_correct = True
-    
+
       board_copy_b.boardState[max_index] = (best_guess % 2) + 1
       state_solvable = board_copy_b.attemptSolve()
       if state_solvable:
-        if first_guess_correct:
+        if first_guess_correct and False:
           print("Multiple solutions detected")
-          self.check_unique = 0
+          #board_copy_b.printBoard()
+          #self.check_unique = 0
         else:  
           self.boardState = board_copy_b.boardState
           self.clues = board_copy_b.clues
@@ -157,6 +167,8 @@ class gameBoard:
         return True
       else:
         return first_guess_correct
+    self.printBoard()
+    print("")
     return True
 
   def printBoard(self):
@@ -170,7 +182,15 @@ class gameBoard:
         else:
           current_row_string += "█ "
       print(current_row_string)
-          
+
+  def animateFrame(self):
+    if do_animation and not np.equal(self.boardState, self.lastBoardState).all():
+      # reset the cursor to 0, 0
+      print("\033[0;0H")
+      self.printBoard()
+      self.lastBoardState = self.boardState.copy()
+      time.sleep(animation_pause_secs)
+
 def clueListFromStr(string, size):
   string = string.replace(' ', '')
   clueStrings = string.split(';')
@@ -224,9 +244,13 @@ while i < (size[0] + size[1]):
 
 print()
 clues = clueListFromStr(clue_str, size)
-board = gameBoard(size, clues, 1)
+board = GameBoard(size, clues, 1)
+if (do_animation):
+  _ = call('clear' if os.name =='posix' else 'cls')
 if not board.attemptSolve():
   print("This board is not solvable!")
   exit(1)
-board.printBoard()
+if (do_animation):
+  _ = call('clear' if os.name =='posix' else 'cls')
+#board.printBoard()
 print()
