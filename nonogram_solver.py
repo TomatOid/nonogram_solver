@@ -10,7 +10,7 @@ from subprocess import call
 #
 # TODO (Maybe): Refactor
 
-do_animation = False
+do_animation = True
 animation_pause_secs = 0.05
 
 def split(n, size):
@@ -84,6 +84,7 @@ class GameBoard:
       self.lastBoardState = np.ones(size, dtype = int)
       self.clues = clues
       self.check_unique = check_unique
+      self.recursion_required = False
 
   def getClueRowFromInt(self, n):
       # rows first, then columns
@@ -138,6 +139,9 @@ class GameBoard:
           self.animateFrame()
 
     if 0 in self.boardState:
+      if not self.recursion_required and not do_animation:
+        print("Recursion was required to solve this puzzle")
+        self.recursion_required = True
       prob = self.getProbabitities()
       max_index = np.unravel_index(np.argmin(np.abs(prob)), self.boardState.shape)
       best_guess = (prob[max_index] > 0) + 1
@@ -167,8 +171,8 @@ class GameBoard:
         return True
       else:
         return first_guess_correct
-    self.printBoard()
     print("")
+    self.printBoard()
     return True
 
   def printBoard(self):
@@ -188,6 +192,7 @@ class GameBoard:
       # reset the cursor to 0, 0
       print("\033[0;0H")
       self.printBoard()
+      print()
       self.lastBoardState = self.boardState.copy()
       time.sleep(animation_pause_secs)
 
@@ -250,7 +255,9 @@ if (do_animation):
 if not board.attemptSolve():
   print("This board is not solvable!")
   exit(1)
-if (do_animation):
-  _ = call('clear' if os.name =='posix' else 'cls')
-#board.printBoard()
+#if (do_animation):
+#  _ = call('clear' if os.name =='posix' else 'cls')
+#if not do_animation:
+#    print()
+#    board.printBoard()
 print()
