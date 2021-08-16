@@ -15,7 +15,8 @@ if (len(sys.argv) != 3):
     print("usage: ", sys.argv[0], "<size_number> <email>")
     sys.exit()
 
-page_size = 0
+page_size = int(sys.argv[1])
+email = sys.argv[2]
 subpage = "/?size=" + str(page_size)
 url = "https://www.puzzle-nonograms.com" + subpage
 
@@ -52,22 +53,22 @@ if (board.attemptSolve()):
     time_delta = round((end_time - start_time).total_seconds() * 1000)
     time_string = str(round(time_delta / 60000)) + ":" + str(round(time_delta / 1000) % 60)
     form_data = { 
-        'jstimer' : '0',
-        'jsPersonalTimer' : '',
-        'jstimerPersonal' : str(time_delta),
-        'stopClock' : '0',
-        'fromSolved' : '0',
-        'robot' : '1',
-        'zoomslider' : '1',
-        'jstimerShow' : time_string,
+        'jstimer'             : '0',
+        'jsPersonalTimer'     : '',
+        'jstimerPersonal'     : str(time_delta),
+        'stopClock'           : '0',
+        'fromSolved'          : '0',
+        'robot'               : '1',
+        'zoomslider'          : '1',
+        'jstimerShow'         : time_string,
         'jstimerShowPersonal' : time_string,
-        'b' : '1',
-        'size' : str(page_size),
-        'param' : magic_param,
-        'w' : str(width),
-        'h' : str(height),
-        'ansH' : ''.join(['y' if i == 2 else 'n' for i in board.boardState.flatten('C')]),
-        'ready' : "+++Done+++",
+        'b'                   : '1',
+        'size'                : str(page_size),
+        'param'               : magic_param,
+        'w'                   : str(width),
+        'h'                   : str(height),
+        'ansH'                : ''.join(['y' if i == 2 else 'n' for i in board.boardState.flatten('C')]),
+        'ready'               : "+++Done+++",
     }
     response = session.post("https://www.puzzle-nonograms.com/", data = form_data)
     response_soup = BeautifulSoup(response.text, "html.parser")
@@ -80,4 +81,4 @@ if (board.attemptSolve()):
     magic_param = magic_param['value']
     
     print(session.post("https://www.puzzle-nonograms.com/hallsubmit.php", { 'submitscore' : '1',
-        'solparams' : magic_param, 'robot' : '1', 'email' : 'connormc757@gmail.com' }).text)
+        'solparams' : magic_param, 'robot' : '1', 'email' : email }).text)
