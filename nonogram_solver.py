@@ -10,7 +10,7 @@ from subprocess import call
 #
 # TODO (Maybe): Refactor
 
-do_animation = True
+do_animation = False
 animation_pause_secs = 0.05
 
 def split(n, size):
@@ -72,9 +72,10 @@ def overlap(clue, state: np.array):
         res = i.copy()
       else:
          # find overlaps between remaining values
-        for j in range(len(res)):
-          if res[j] != i[j]:
-            res[j] = 0    
+        res *= np.equal(res, i)
+        #for j in range(len(res)):
+        #  if res[j] != i[j]:
+        #    res[j] = 0    
   clue.possibilities = clue.possibilities[remove]
   return res
  
@@ -209,55 +210,56 @@ def clueListFromStr(string, size):
     res.append(Clue(t, size[0]))
   return res
 
-size = (0, 0)
-while size == (0, 0):
-  size_str = input("What size puzzle are you solving? (H x W): ").lower().replace(' ', '')
-  try:
-    size = (int(size_str), int(size_str))
-  except:
-    delims = 'x*'
-    for d in delims:
-      if d in size_str:
-        split_sizes = size_str.split(d)
-        try:
-          size = (int(split_sizes[0]), int(split_sizes[1]))
-        except:
+if __name__ == "__main__":
+    size = (0, 0)
+    while size == (0, 0):
+      size_str = input("What size puzzle are you solving? (H x W): ").lower().replace(' ', '')
+      try:
+        size = (int(size_str), int(size_str))
+      except:
+        delims = 'x*'
+        for d in delims:
+          if d in size_str:
+            split_sizes = size_str.split(d)
+            try:
+              size = (int(split_sizes[0]), int(split_sizes[1]))
+            except:
+              print("Not a valid size.")
+              size = (0, 0)
+              continue
+            if len(split_sizes) != 2:
+              print("Only 2d puzzles are supported")
+              size = (0, 0)
+              continue
+            else:
+              break
+        if size == (0, 0):
           print("Not a valid size.")
-          size = (0, 0)
           continue
-        if len(split_sizes) != 2:
-          print("Only 2d puzzles are supported")
-          size = (0, 0)
-          continue
-        else:
-          break
-    if size == (0, 0):
-      print("Not a valid size.")
-      continue
 
-print("Enter the clues, one line at a time, reading clockwise. If there is more than one number, use a comma. type b to go back");
-clue_str = ""
-i = 0
-while i < (size[0] + size[1]):
-  clue_input = input(str(i) + ':').replace(' ', '').replace(';', '')
-  if (clue_input.lower() == "back" or clue_input.lower() == "b"):
-    i -= 1
-    clue_str = clue_str[0 : clue_str.rfind(';', 0, max(clue_str.rfind(';'), 0)) + 1]
-    continue
-  clue_str += clue_input + ';'
-  i += 1
+    print("Enter the clues, one line at a time, reading clockwise. If there is more than one number, use a comma. type b to go back");
+    clue_str = ""
+    i = 0
+    while i < (size[0] + size[1]):
+      clue_input = input(str(i) + ':').replace(' ', '').replace(';', '')
+      if (clue_input.lower() == "back" or clue_input.lower() == "b"):
+        i -= 1
+        clue_str = clue_str[0 : clue_str.rfind(';', 0, max(clue_str.rfind(';'), 0)) + 1]
+        continue
+      clue_str += clue_input + ';'
+      i += 1
 
-print()
-clues = clueListFromStr(clue_str, size)
-board = GameBoard(size, clues, 1)
-if (do_animation):
-  _ = call('clear' if os.name =='posix' else 'cls')
-if not board.attemptSolve():
-  print("This board is not solvable!")
-  exit(1)
-#if (do_animation):
-#  _ = call('clear' if os.name =='posix' else 'cls')
-#if not do_animation:
-#    print()
-#    board.printBoard()
-print()
+    print()
+    clues = clueListFromStr(clue_str, size)
+    board = GameBoard(size, clues, 1)
+    if (do_animation):
+      _ = call('clear' if os.name =='posix' else 'cls')
+    if not board.attemptSolve():
+      print("This board is not solvable!")
+      exit(1)
+    #if (do_animation):
+    #  _ = call('clear' if os.name =='posix' else 'cls')
+    #if not do_animation:
+    #    print()
+    #    board.printBoard()
+    print()
